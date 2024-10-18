@@ -1,17 +1,19 @@
 from scapy.all import *
 import traceback
 import threading
+#import multiprocessing
 
 import DataStruct.Raw as Raw
+import RawData
+import ProcessCtrl
 
-rt = Raw.RawTable([])
-rtLock = threading.Lock()
+#manager = multiprocessing.Manager()
+#rt = manager.list()
+#rtLock = manager.Lock()
 
 def recoder(pkt):
-  global rt
-
   if "IP" not in pkt:
-    print(f"Not IP packet")
+    #print(f"Not IP packet")
     return
 
   srcIp = pkt["IP"].src
@@ -26,7 +28,7 @@ def recoder(pkt):
     srcPort = pkt["IP"]["UDP"].sport
     dstPort = pkt["IP"]["UDP"].dport
   else:
-    print(f"Not TCP or UDP packet")
+    #print(f"Not TCP or UDP packet")
     return
   
   length = pkt.len
@@ -42,14 +44,34 @@ def recoder(pkt):
     "Length": length,
     "Timestamp": ts
   }
+
+  rt = RawData.Table.getInstance().getRawTable()
+  rtLock = RawData.Table.getInstance().getRawTableLock()
   with rtLock:
     rt.append(rr)
-  print(length)
+  #print(length)
   #print(f"RawTable count: {len(rt)}")
 
 
 def Start():
   try:
-    sniff(iface="eth0", prn=recoder)
+    #sniff(iface="enx84e8cb7e1b0d", prn=recoder, store=0, filter="ip")
+    t = AsyncSniffer(iface="enx84e8cb7e1b0d", prn=recoder, store=0, filter="ip")
+    t.start()
+    while ProcessCtrl.Runnables.getInstance().getRunnable():
+      time.sleep(1)
+    return
+  except:
+    traceback.print_exc()
+
+
+
+def TrainStart(duration):
+  try:
+    #sniff(iface="enx84e8cb7e1b0d", prn=recoder, store=0, filter="ip")
+    t = AsyncSniffer(iface="enx84e8cb7e1b0d", prn=recoder, store=0, filter="ip")
+    t.start()
+    time.sleep(duration)
+    return
   except:
     traceback.print_exc()
