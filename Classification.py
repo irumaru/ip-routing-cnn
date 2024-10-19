@@ -14,9 +14,9 @@ def Start():
       # Dataframeへ変換
       rt = RawData.Table.getInstance().getRawTable()
       rtLock = RawData.Table.getInstance().getRawTableLock()
-      #with rtLock:
-      #  df = pd.DataFrame(rt, columns=["SrcIP", "DstIP", "SrcPort", "DstPort", "Protocol", "Length", "Timestamp"])
-      df = pd.DataFrame(rt, columns=["SrcIP", "DstIP", "SrcPort", "DstPort", "Protocol", "Length", "Timestamp"])
+      with rtLock:
+        df = pd.DataFrame(rt, columns=["SrcIP", "DstIP", "SrcPort", "DstPort", "Protocol", "Length", "Timestamp"])
+      #df = pd.DataFrame(rt, columns=["SrcIP", "DstIP", "SrcPort", "DstPort", "Protocol", "Length", "Timestamp"])
 
       # リストの取得
       # targetList = df.loc[:, ["SrcIP", "SrcPort", "DstIP", "DstPort"]].drop_duplicates()

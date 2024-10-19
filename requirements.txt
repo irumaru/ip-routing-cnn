@@ -2,3 +2,5 @@ scapy
 pandas
 matplotlib
 rich
+torchvision
+torch

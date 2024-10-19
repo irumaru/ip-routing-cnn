@@ -1,5 +1,5 @@
 from PIL import Image
-import torchvision.transforms as transforms
+#import torchvision.transforms as transforms
 import torchvision
 import torch
 import torch.nn as nn
@@ -58,7 +58,7 @@ def preprocess_image(image_path):
 # 画像の判定関数
 def predict_image(image_path, model):
     # ネットワークのインスタンスを生成
-    device = torch.device("cuda:0")
+    device = torch.device("cpu")
     model = model.to(device)
 
     # モデルの評価モードに切り替え
@@ -81,7 +81,7 @@ def Eval(image_path):
   MODEL_PATH = "output/train/model.pth"
   # loaded_net = Net()
   # loaded_net.load_state_dict(torch.load(MODEL_PATH))
-  loaded_net = torch.load(MODEL_PATH)
+  loaded_net = torch.load(MODEL_PATH, torch.device('cpu'))
 
   # 判定する画像のパス
   #image_path = "output/train-data/discord-server-video/7.png"
