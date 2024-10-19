@@ -5,16 +5,15 @@ def Generate(df, path):
   y = df["Length"].values.tolist()
 
   plt.clf()
-  plt.scatter(x, y)
 
+  plt.style.use("grayscale")
   plt.ylim(0, 1500)
+  plt.axis("off")
+
+  plt.scatter(x, y)
 
   #plt.xlabel("Timestamp")
   #plt.ylabel("Length")
-
-  plt.axis("off")
-
-  plt.style.use("grayscale")
 
   plt.savefig(path)
   plt.clf()
