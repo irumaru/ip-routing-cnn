@@ -14,9 +14,10 @@ class Traffic:
     self.table.add_column("Protocol")
     self.table.add_column("Length")
     self.table.add_column("Duration")
+    self.table.add_column("Label")
 
-  def add(self, streamId, srcIP, srcPort, dstIP, dstPort, protocol, length, duration):
-    self.table.add_row(str(streamId), str(srcIP), str(srcPort), str(dstIP), str(dstPort), str(protocol), str(DataSize.Print(length)), str(duration))
+  def add(self, streamId, srcIP, srcPort, dstIP, dstPort, protocol, length, duration, label):
+    self.table.add_row(str(streamId), str(srcIP), str(srcPort), str(dstIP), str(dstPort), str(protocol), str(DataSize.Print(length)), str(duration), str(label))
 
   def print(self):
     console = Console()

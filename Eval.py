@@ -4,9 +4,6 @@ import torchvision
 import torch
 import torch.nn as nn
 
-# ネットワークのインスタンスを生成
-device = torch.device("cuda:0")
-
 # データセットの読み込み
 class ImageTransform():
   def __init__(self, mean, std):
@@ -60,6 +57,10 @@ def preprocess_image(image_path):
 
 # 画像の判定関数
 def predict_image(image_path, model):
+    # ネットワークのインスタンスを生成
+    device = torch.device("cuda:0")
+    model = model.to(device)
+
     # モデルの評価モードに切り替え
     model.eval()
     
@@ -75,16 +76,20 @@ def predict_image(image_path, model):
     # 予測結果の表示
     return predicted.item()
 
-# モデルの読み込み
-MODEL_PATH = "output/train/model.pth"
-# loaded_net = Net()
-# loaded_net.load_state_dict(torch.load(MODEL_PATH))
-loaded_net = torch.load(MODEL_PATH)
-loaded_net = loaded_net.to(device)
+def Eval(image_path):
+  # モデルの読み込み
+  MODEL_PATH = "output/train/model.pth"
+  # loaded_net = Net()
+  # loaded_net.load_state_dict(torch.load(MODEL_PATH))
+  loaded_net = torch.load(MODEL_PATH)
 
-# 判定する画像のパス
-image_path = "output/train-data/discord-server-video/7.png"
+  # 判定する画像のパス
+  #image_path = "output/train-data/discord-server-video/7.png"
 
-# 画像の判定
-predicted_label = predict_image(image_path, loaded_net)
-print(f"Predicted Label: {predicted_label}")
+  # 画像の判定
+  predicted_label = predict_image(image_path, loaded_net)
+  #print(f"Predicted Label: {predicted_label}")
+  return predicted_label
+
+# if __name__ == "__main__":
+#   print(Eval())

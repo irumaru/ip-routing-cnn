@@ -6,6 +6,7 @@ import RawData
 import ProcessCtrl
 import FlowPic
 import UI.RichTable as RichTable
+import Eval
 
 def Start():
   try:
@@ -38,14 +39,17 @@ def Start():
         if length < 1000000:
           continue
 
-        # 表示
-        tt.add(idx, row["SrcIP"], "", row["DstIP"], "", "", length, duration)
-
         # 画像化
-        FlowPic.generate(df1, f"{idx}")
+        FlowPic.Generate(df1, "output/tmp.png")
+
+        # 評価
+        label = Eval.Eval("output/tmp.png")
+
+        # 表示
+        tt.add(idx, row["SrcIP"], "", row["DstIP"], "", "", length, duration, label)
 
         # ファイル出力
-        df1.to_csv(f"output/{idx}.csv")
+        #df1.to_csv(f"output/{idx}.csv")
 
       tt.print()
 
@@ -92,7 +96,7 @@ def TrainStart():
       tt.add(idx, row["SrcIP"], "", row["DstIP"], "", "", length, duration)
 
       # 画像化
-      FlowPic.generate(df1, f"{idx}")
+      FlowPic.Generate(df1, f"{idx}")
 
       # ファイル出力
       df1.to_csv(f"output/{idx}.csv")
