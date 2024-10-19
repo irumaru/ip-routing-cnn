@@ -8,6 +8,20 @@
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 
+	// nvidia-cudaの共有ライブラリーをインストール
+	"features": {
+		"ghcr.io/devcontainers/features/nvidia-cuda:1": {
+			"cudaVersion": "12.2",
+			"cudnnVersion": "8.9.5.29"
+		}
+	},
+
+	// gpuパススルーを有効化
+	// optionalの場合，gpuが存在しない場合はcpuを使用する．=>つまりエラーにならない．
+	"hostRequirements": {
+		"gpu": "optional" 
+	}
+
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 
@@ -19,5 +33,5 @@
 
 	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
 	// "remoteUser": "root"
-	"remoteUser": "root"
+	//"remoteUser": "root"
 }
