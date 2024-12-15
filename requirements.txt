@@ -4,3 +4,5 @@ matplotlib
 rich
 torchvision
 torch
+numpy
+paramiko

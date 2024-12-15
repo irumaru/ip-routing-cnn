@@ -1,11 +1,11 @@
 from concurrent.futures import ThreadPoolExecutor
 
-import Recoder
+from ..PacketFlowScan import Scan
 import Classification
 
 def Main():
   print("開始")
-  Recoder.TrainStart(1000)
+  Scan.TrainStart(1000)
   Classification.TrainStart()
   print("正常終了")
 

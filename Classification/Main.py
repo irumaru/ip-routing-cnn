@@ -3,7 +3,7 @@ import time
 import torch.nn as nn
 
 import ProcessCtrl
-import Recoder
+from ..PacketFlowScan import Scan
 import Classification
 
 # ネットワークの定義
@@ -41,7 +41,7 @@ def Main():
   try:
     print("開始")
     with ThreadPoolExecutor() as executor:
-      pr = executor.submit(Recoder.Start)
+      pr = executor.submit(Scan.Start)
       pc = executor.submit(Classification.Start)
     print("異常終了")
   except KeyboardInterrupt:
