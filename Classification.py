@@ -35,8 +35,9 @@ def Start():
         endTime = df1["Timestamp"].max()
         duration = endTime - startTime
 
-        # 1MB以上の通信
-        if length < 1000000:
+        # 0.1MB以上の通信
+        if length < 100000:
+          #print(f"Skip: {row["SrcIP"]}-{row["DstIP"]}, {length}B")
           continue
 
         # 画像化
@@ -44,6 +45,10 @@ def Start():
 
         # 評価
         label = Eval.Eval("output/tmp.png")
+
+        # ルールで分類
+        
+        # 経路制御
 
         # 表示
         tt.add(idx, row["SrcIP"], "", row["DstIP"], "", "", length, duration, label)

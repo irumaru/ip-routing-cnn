@@ -4,7 +4,7 @@
 # 1. インターネット側のIPアドレス
 # 2. ゲートウェイのIPアドレス
 
-import adaptor.vyos as rc
+import RouterAdaptor.vyos as rc
 
 
 # 経路更新

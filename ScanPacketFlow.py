@@ -56,7 +56,7 @@ def recoder(pkt):
 def Start():
   try:
     #sniff(iface="enx84e8cb7e1b0d", prn=recoder, store=0, filter="ip")
-    t = AsyncSniffer(iface="enx84e8cb7e1b0d", prn=recoder, store=0, filter="ip")
+    t = AsyncSniffer(iface="ens19", prn=recoder, store=0, filter="ip")
     t.start()
     while ProcessCtrl.Runnables.getInstance().getRunnable():
       time.sleep(1)
@@ -69,7 +69,7 @@ def Start():
 def TrainStart(duration):
   try:
     #sniff(iface="enx84e8cb7e1b0d", prn=recoder, store=0, filter="ip")
-    t = AsyncSniffer(iface="enx84e8cb7e1b0d", prn=recoder, store=0, filter="ip")
+    t = AsyncSniffer(iface="ens19", prn=recoder, store=0, filter="ip")
     t.start()
     time.sleep(duration)
     return
