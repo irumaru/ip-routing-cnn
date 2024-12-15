@@ -1,5 +1,6 @@
 import os
 import shutil
+
 import TrainImage
 
 PACKET_DATA = "output/archive"
