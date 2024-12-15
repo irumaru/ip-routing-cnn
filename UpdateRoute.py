@@ -21,8 +21,11 @@ def getConfig():
   return rc.get_config()
 
 # configへ経路を追加
-def replaceRoute(config, currentConfig):
-  pb = rc.create_protocols_block(currentConfig)
+def replaceRoute(config, routeList):
+  # 固定経路を追加
+  routeList["0.0.0.0/0"] = "192.168.9.2"
+
+  pb = rc.create_protocols_block(routeList)
 
   return rc.replace_protocols_block(config, pb)
 

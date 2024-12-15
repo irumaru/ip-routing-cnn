@@ -7,6 +7,8 @@ import ProcessCtrl
 import FlowPic
 import UI.RichTable as RichTable
 import Eval
+import RouteRule
+import UpdateRoute
 
 def Start():
   try:
@@ -25,6 +27,7 @@ def Start():
       #print(targetList)
 
       # サイズ統計
+      RouteTable = {}
       tt = RichTable.Traffic()
       for idx, row in targetList.iterrows():
         #df1 = df[(df["SrcIP"] == row["SrcIP"]) & (df["DstIP"] == row["DstIP"]) & (df["SrcPort"] == row["SrcPort"]) & (df["DstPort"] == row["DstPort"])]
@@ -47,14 +50,17 @@ def Start():
         label = Eval.Eval("output/tmp.png")
 
         # ルールで分類
-        
-        # 経路制御
+        if RouteRule.getRouteByLabel(label):
+          RouteTable[f"{row["SrcIP"]}/32"] = "192.168.9.3"
 
         # 表示
         tt.add(idx, row["SrcIP"], "", row["DstIP"], "", "", length, duration, label)
 
         # ファイル出力
         #df1.to_csv(f"output/{idx}.csv")
+
+      # ルーティングテーブルの更新
+      UpdateRoute.UpdateRoute(RouteTable)
 
       tt.print()
 
