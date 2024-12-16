@@ -5,6 +5,7 @@ import torch.nn as nn
 import ProcessCtrl
 import ScanPacketFlow
 import Classification
+import GCData
 
 # ネットワークの定義
 class Net(nn.Module):
@@ -43,6 +44,7 @@ def Main():
     with ThreadPoolExecutor() as executor:
       pr = executor.submit(ScanPacketFlow.Start)
       pc = executor.submit(Classification.Start)
+      pg = executor.submit(GCData.Start)
     print("異常終了")
   except KeyboardInterrupt:
     print("終了中")
@@ -52,6 +54,9 @@ def Main():
       time.sleep(1)
     while pc.running():
       print("Classification: 終了待機")
+      time.sleep(1)
+    while pg.running():
+      print("GCData: 終了待機")
       time.sleep(1)
     print("正常終了")
 
