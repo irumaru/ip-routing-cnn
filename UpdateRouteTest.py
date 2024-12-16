@@ -14,4 +14,6 @@ sourceRouteList = {
 }
 
 #print(list(set(sourceRouteList.keys())))
-UpdateRoute.UpdateRoute(routeList, sourceRouteList)
+#UpdateRoute.UpdateRoute(routeList, sourceRouteList)
+router1 = UpdateRoute.Router("192.168.10.14")
+router1.UpdateRoute(routeList, sourceRouteList)

@@ -6,30 +6,33 @@
 
 import RouterAdaptor.vyos as rc
 
+class Router:
+  def __init__(self, routerHost):
+    self.rc = rc.RouterController(hostname=routerHost)
 
-# 経路更新
-# リストの更新を適用
-def UpdateRoute(routeList, sourceRouteList):
-  config = getConfig()
+  # 経路更新
+  # リストの更新を適用
+  def UpdateRoute(self, routeList, sourceRouteList):
+    config = self.getConfig()
 
-  newConfig = replaceRoute(config, routeList, sourceRouteList)
+    newConfig = self.replaceRoute(config, routeList, sourceRouteList)
 
-  saveConfig(newConfig)
+    self.saveConfig(newConfig)
 
-# config読み込み
-def getConfig():
-  return rc.get_config()
+  # config読み込み
+  def getConfig(self):
+    return self.rc.get_config()
 
-# configへ経路を追加
-def replaceRoute(config, routeList, sourceRouteList):
-  # 固定経路を追加
-  routeList["0.0.0.0/0"] = "192.168.9.2"
+  # configへ経路を追加
+  def replaceRoute(self, config, routeList, sourceRouteList):
+    # 固定経路を追加
+    routeList["0.0.0.0/0"] = "192.168.9.2"
 
-  pb = rc.create_protocols_block(routeList, sourceRouteList)
+    pb = self.rc.create_protocols_block(routeList, sourceRouteList)
 
-  return rc.replace_protocols_block(config, pb)
+    return self.rc.replace_protocols_block(config, pb)
 
-# config保存
-def saveConfig(config):
-  print(config)
-  #rc.apply_config(config)
+  # config保存
+  def saveConfig(self, config):
+    #print(config)
+    self.rc.apply_config(config)
