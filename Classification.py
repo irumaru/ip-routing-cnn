@@ -12,6 +12,20 @@ import UpdateRoute
 
 def Start():
   try:
+    # ルータの設定
+    router1 = UpdateRoute.Router("192.168.10.11")
+    router2 = UpdateRoute.Router("192.168.10.14")
+
+    # 固定経路を追加
+    router1.SetStaticRoute({
+      "0.0.0.0/0": "192.168.9.2"
+    })
+    router2.SetStaticRoute({
+      "0.0.0.0/0": "192.168.10.1",
+      "192.168.9.0/24": "192.168.8.2",
+      "192.168.11.0/24": "192.168.8.2"
+    })
+
     while True:
       # Dataframeへ変換
       rt = RawData.Table.getInstance().getRawTable()
@@ -28,6 +42,7 @@ def Start():
 
       # サイズ統計
       RouteTable = {}
+      sourceRouteTable = {}
       tt = RichTable.Traffic()
       for idx, row in targetList.iterrows():
         #df1 = df[(df["SrcIP"] == row["SrcIP"]) & (df["DstIP"] == row["DstIP"]) & (df["SrcPort"] == row["SrcPort"]) & (df["DstPort"] == row["DstPort"])]
@@ -51,7 +66,14 @@ def Start():
 
         # ルールで分類
         if RouteRule.getRouteByLabel(label):
-          RouteTable[f"{row["SrcIP"]}/32"] = "192.168.9.3"
+          # ルーティング
+          src = f"{row["SrcIP"]}/32"
+          gw = "192.168.9.3"
+          RouteTable[src] = gw
+          # ソースルーティング
+          src = f"{row["SrcIP"]}/32"
+          dst = f"{row["DstIP"]}/32"
+          sourceRouteTable.setdefault(src, []).append(dst)
 
         # 表示
         tt.add(idx, row["SrcIP"], "", row["DstIP"], "", "", length, duration, label)
@@ -60,7 +82,9 @@ def Start():
         #df1.to_csv(f"output/{idx}.csv")
 
       # ルーティングテーブルの更新
-      UpdateRoute.UpdateRoute(RouteTable)
+      print(RouteTable)
+      router1.UpdateRoute(RouteTable, {})
+      router2.UpdateRoute({}, sourceRouteTable)
 
       tt.print()
 

@@ -79,12 +79,13 @@ class RouterController:
   # protocols blockの作成
   def create_protocols_block(self, routeList, sourceRouteList):
     policy = """policy {
-      route PBR {
-  """
+    route PBR {
+        interface eth0
+"""
 
     protocols = """protocols {
-      static {
-  """
+    static {
+"""
 
     # 送信元リスト
     # key + 1: Rule ID
@@ -95,37 +96,37 @@ class RouterController:
     for src in srcList:
       srcId = srcList.index(src) + 1
       policy += f"""        rule {srcId} {{
-              set {{
-                  table {srcId}
-              }}
-              source {{
-                  address {src}
-              }}
-          }}
-  """
+            set {{
+                table {srcId}
+            }}
+            source {{
+                address {src}
+            }}
+        }}
+"""
       protocols += f"""        table {srcId} {{
-  """
+"""
       for dst in sourceRouteList[src]:
         protocols += f"""            route {dst} {{
-                  next-hop 192.168.8.3 {{
-                  }}
-              }}
-  """
+                next-hop 192.168.8.3 {{
+                }}
+            }}
+"""
       protocols += f"""        }}
-  """
+"""
 
     for key, value in routeList.items():
       protocols += f"""        route {key} {{
-              next-hop {value} {{
-              }}
-          }}
-  """
+            next-hop {value} {{
+            }}
+        }}
+"""
     
     policy += """    }
-  }
-  """
+}
+"""
 
     protocols += """    }
-  }"""
+}"""
 
     return policy + protocols

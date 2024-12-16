@@ -9,6 +9,11 @@ import RouterAdaptor.vyos as rc
 class Router:
   def __init__(self, routerHost):
     self.rc = rc.RouterController(hostname=routerHost)
+    self.staticRoute = {}
+
+  # 固定経路の追加
+  def SetStaticRoute(self, routeList):
+    self.staticRoute = routeList
 
   # 経路更新
   # リストの更新を適用
@@ -26,7 +31,7 @@ class Router:
   # configへ経路を追加
   def replaceRoute(self, config, routeList, sourceRouteList):
     # 固定経路を追加
-    routeList["0.0.0.0/0"] = "192.168.9.2"
+    routeList.update(self.staticRoute)
 
     pb = self.rc.create_protocols_block(routeList, sourceRouteList)
 
