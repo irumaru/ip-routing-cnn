@@ -9,10 +9,10 @@ import RouterAdaptor.vyos as rc
 
 # 経路更新
 # リストの更新を適用
-def UpdateRoute(routeList):
+def UpdateRoute(routeList, sourceRouteList):
   config = getConfig()
 
-  newConfig = replaceRoute(config, routeList)
+  newConfig = replaceRoute(config, routeList, sourceRouteList)
 
   saveConfig(newConfig)
 
@@ -21,14 +21,15 @@ def getConfig():
   return rc.get_config()
 
 # configへ経路を追加
-def replaceRoute(config, routeList):
+def replaceRoute(config, routeList, sourceRouteList):
   # 固定経路を追加
   routeList["0.0.0.0/0"] = "192.168.9.2"
 
-  pb = rc.create_protocols_block(routeList)
+  pb = rc.create_protocols_block(routeList, sourceRouteList)
 
   return rc.replace_protocols_block(config, pb)
 
 # config保存
 def saveConfig(config):
-  rc.apply_config(config)
+  print(config)
+  #rc.apply_config(config)
