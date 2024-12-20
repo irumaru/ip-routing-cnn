@@ -43,7 +43,7 @@ def Start():
       # サイズ統計
       RouteTable = {}
       sourceRouteTable = {}
-      tt = RichTable.Traffic()
+      tt = RichTable.TrafficMini()
       for idx, row in targetList.iterrows():
         #df1 = df[(df["SrcIP"] == row["SrcIP"]) & (df["DstIP"] == row["DstIP"]) & (df["SrcPort"] == row["SrcPort"]) & (df["DstPort"] == row["DstPort"])]
         df1 = df[(df["SrcIP"] == row["SrcIP"]) & (df["DstIP"] == row["DstIP"])]
@@ -62,10 +62,17 @@ def Start():
         FlowPic.Generate(df1, "output/tmp.png")
 
         # 評価
-        label = Eval.Eval("output/tmp.png")
+        predict = Eval.Eval("output/tmp.png")
+
+        # 表示
+        tt.add(idx, row["SrcIP"], row["DstIP"], length, duration, predict["predicted"], predict["probabilities"])
+
+        # 低精度
+        if predict["probabilities"] < 0.6:
+          continue
 
         # ルールで分類
-        if RouteRule.getRouteByLabel(label):
+        if RouteRule.getRouteByLabel(predict["predicted"]):
           # ルーティング
           src = f"{row["SrcIP"]}/32"
           gw = "192.168.9.3"
@@ -74,9 +81,6 @@ def Start():
           src = f"{row["SrcIP"]}/32"
           dst = f"{row["DstIP"]}/32"
           sourceRouteTable.setdefault(src, []).append(dst)
-
-        # 表示
-        tt.add(idx, row["SrcIP"], "", row["DstIP"], "", "", length, duration, label)
 
         # ファイル出力
         #df1.to_csv(f"output/{idx}.csv")

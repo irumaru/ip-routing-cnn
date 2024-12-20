@@ -3,6 +3,7 @@ from PIL import Image
 import torchvision
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 # データセットの読み込み
 class ImageTransform():
@@ -71,10 +72,16 @@ def predict_image(image_path, model):
     # 予測
     with torch.no_grad():
         output = model(img_tensor)
-        _, predicted = output.max(1)
+        
+        modelProbabilities = F.softmax(output, dim=1)
+        probabilities, predicted = torch.max(modelProbabilities, 1)
+        print(f"Probabilities: {modelProbabilities}, {probabilities}, {predicted}")
     
     # 予測結果の表示
-    return predicted.item()
+    return {
+        "predicted": predicted.item(),
+        "probabilities": probabilities.item()
+    }
 
 def Eval(image_path):
   # モデルの読み込み
@@ -87,9 +94,9 @@ def Eval(image_path):
   #image_path = "output/train-data/discord-server-video/7.png"
 
   # 画像の判定
-  predicted_label = predict_image(image_path, loaded_net)
+  predict = predict_image(image_path, loaded_net)
   #print(f"Predicted Label: {predicted_label}")
-  return predicted_label
+  return predict
 
 # if __name__ == "__main__":
 #   print(Eval())
