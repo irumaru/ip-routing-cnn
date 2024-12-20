@@ -18,7 +18,7 @@ def gc():
           if(m < row["Timestamp"]):
             m = row["Timestamp"]
         for row in rt:
-          if(row["Timestamp"] < m - 60):
+          if(row["Timestamp"] < m - 90):
             rt.remove(row)
             removeCount += 1
       

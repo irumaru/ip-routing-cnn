@@ -9,6 +9,7 @@ import UI.RichTable as RichTable
 import Eval
 import RouteRule
 import UpdateRoute
+import TimeLogger
 
 def Start():
   try:
@@ -27,6 +28,10 @@ def Start():
     })
 
     while True:
+      # 時刻ロガー
+      timeLogger = TimeLogger.TimeLogger()
+      timeLogger.Logger("データ読み込み開始", time.time())
+      
       # Dataframeへ変換
       rt = RawData.Table.getInstance().getRawTable()
       rtLock = RawData.Table.getInstance().getRawTableLock()
@@ -45,6 +50,8 @@ def Start():
       sourceRouteTable = {}
       tt = RichTable.TrafficMini()
       for idx, row in targetList.iterrows():
+        timeLogger.Logger("フロー情報処理開始", time.time())
+        
         #df1 = df[(df["SrcIP"] == row["SrcIP"]) & (df["DstIP"] == row["DstIP"]) & (df["SrcPort"] == row["SrcPort"]) & (df["DstPort"] == row["DstPort"])]
         df1 = df[(df["SrcIP"] == row["SrcIP"]) & (df["DstIP"] == row["DstIP"])]
         # 統計の計算
@@ -53,24 +60,30 @@ def Start():
         endTime = df1["Timestamp"].max()
         duration = endTime - startTime
 
-        # 0.1MB以上の通信
-        if length < 100000:
+        # 0.1MB以上かつ1分以上の通信のみ処理の対象とする
+        if length < 100000 or duration < 60:
           #print(f"Skip: {row["SrcIP"]}-{row["DstIP"]}, {length}B")
+          timeLogger.Clear()
           continue
 
         # 画像化
+        timeLogger.Logger("フロー画像生成開始", time.time())
         FlowPic.Generate(df1, "output/tmp.png")
 
         # 評価
+        timeLogger.Logger("CNN評価開始", time.time())
         predict = Eval.Eval("output/tmp.png")
+        timeLogger.Logger("CNN評価終了", time.time())
 
         # 表示
         tt.add(idx, row["SrcIP"], row["DstIP"], length, duration, predict["predicted"], predict["probabilities"])
 
         # 低精度
         if predict["probabilities"] < 0.6:
+          timeLogger.Clear()
           continue
-
+        
+        timeLogger.Logger("ルーティング制御開始", time.time())
         # ルールで分類
         if RouteRule.getRouteByLabel(predict["predicted"]):
           # ルーティング
@@ -81,6 +94,11 @@ def Start():
           src = f"{row["SrcIP"]}/32"
           dst = f"{row["DstIP"]}/32"
           sourceRouteTable.setdefault(src, []).append(dst)
+        timeLogger.Logger("ルーティング制御終了", time.time())
+
+        # 時刻ロガーの出力
+        timeLogger.SetStreamId(idx)
+        timeLogger.Write()
 
         # ファイル出力
         #df1.to_csv(f"output/{idx}.csv")
