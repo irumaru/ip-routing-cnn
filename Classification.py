@@ -30,7 +30,7 @@ def Start():
     while True:
       # 時刻ロガー
       timeLogger = TimeLogger.TimeLogger()
-      timeLogger.Logger("データ読み込み開始", time.time())
+      timeLogger.Logger("データ読み込み開始")
       
       # Dataframeへ変換
       rt = RawData.Table.getInstance().getRawTable()
@@ -50,7 +50,7 @@ def Start():
       sourceRouteTable = {}
       tt = RichTable.TrafficMini()
       for idx, row in targetList.iterrows():
-        timeLogger.Logger("フロー情報処理開始", time.time())
+        timeLogger.Logger("フロー情報処理開始")
         
         #df1 = df[(df["SrcIP"] == row["SrcIP"]) & (df["DstIP"] == row["DstIP"]) & (df["SrcPort"] == row["SrcPort"]) & (df["DstPort"] == row["DstPort"])]
         df1 = df[(df["SrcIP"] == row["SrcIP"]) & (df["DstIP"] == row["DstIP"])]
@@ -67,13 +67,13 @@ def Start():
           continue
 
         # 画像化
-        timeLogger.Logger("フロー画像生成開始", time.time())
+        timeLogger.Logger("フロー画像生成開始")
         FlowPic.Generate(df1, "output/tmp.png")
 
         # 評価
-        timeLogger.Logger("CNN評価開始", time.time())
+        timeLogger.Logger("CNN評価開始")
         predict = Eval.Eval("output/tmp.png")
-        timeLogger.Logger("CNN評価終了", time.time())
+        timeLogger.Logger("CNN評価終了")
 
         # 表示
         tt.add(idx, row["SrcIP"], row["DstIP"], length, duration, predict["predicted"], predict["probabilities"])
@@ -83,7 +83,7 @@ def Start():
           timeLogger.Clear()
           continue
         
-        timeLogger.Logger("ルーティング制御開始", time.time())
+        timeLogger.Logger("ルーティング制御開始")
         # ルールで分類
         if RouteRule.getRouteByLabel(predict["predicted"]):
           # ルーティング
@@ -94,7 +94,7 @@ def Start():
           src = f"{row["SrcIP"]}/32"
           dst = f"{row["DstIP"]}/32"
           sourceRouteTable.setdefault(src, []).append(dst)
-        timeLogger.Logger("ルーティング制御終了", time.time())
+        timeLogger.Logger("ルーティング制御終了")
 
         # 時刻ロガーの出力
         timeLogger.SetStreamId(idx)

@@ -1,4 +1,5 @@
 import os
+import time
 
 class TimeLogger:
   def __init__(self):
@@ -7,8 +8,10 @@ class TimeLogger:
   def Clear(self):
     self.log = []
   
-  def Logger(self, label, time):
-    self.log.append({"label": label, "time": time})
+  def Logger(self, label):
+    unixTime = time.time()
+    relativeTime = time.perf_counter()
+    self.log.append({"label": label, "relativeTime": relativeTime, "unixTime": unixTime})
   
   def SetStreamId(self, streamId):
     self.streamId = streamId
@@ -23,6 +26,6 @@ class TimeLogger:
         break
 
     with open(path, "w") as f:
-      f.write("label,time\n")
+      f.write("label,relative time,unix time\n")
       for l in self.log:
-        f.write(f"{l['label']},{l['time']}\n")
+        f.write(f"{l['label']},{l['relativeTime']},{l['unixTime']}\n")
