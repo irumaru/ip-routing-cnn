@@ -32,10 +32,8 @@ class Router:
   def replaceRoute(self, config, routeList, sourceRouteList):
     # 固定経路を追加
     routeList.update(self.staticRoute)
-
-    pb = self.rc.create_protocols_block(routeList, sourceRouteList)
-
-    return self.rc.replace_protocols_block(config, pb)
+    
+    return self.rc.create_config(config, routeList, sourceRouteList)
 
   # config保存
   def saveConfig(self, config):

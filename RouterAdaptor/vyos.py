@@ -51,14 +51,24 @@ class RouterController:
     # 設定の適用
     self.exec_command(self.applyConfigCmd)
 
+  def create_config(self, config, routeList, sourceRouteList):
+    # 新しい設定ブロックの作成
+    policy, protocols = self.create_policy_and_protocol_block(routeList, sourceRouteList)
+
+    # 設定ファイルの作成
+    config = self.replace_config_block(config, "policy", policy)
+    config = self.replace_config_block(config, "protocols", protocols)
+
+    return config
+
   # 設定ファイルの書き換え
-  def replace_protocols_block(self, config, protocols):
+  def replace_config_block(self, config, blockName, block):
     config_n = config.split("\n")
     
     exist = True
 
     try:
-      s = config_n.index("protocols {")
+      s = config_n.index(f"{blockName} {{")
     except ValueError:
       # Error: protocols block not found
       exist = False
@@ -66,9 +76,9 @@ class RouterController:
     if exist:
       e = config_n.index("}", s)
       print("s: ", s, "   e: ", e)
-      config_n[s:e + 1] = protocols.split("\n")
+      config_n[s:e + 1] = block.split("\n")
     else:
-      config_n[0:0] = protocols.split("\n")
+      config_n[0:0] = block.split("\n")
 
     config_new = ""
     for config_line in config_n:
@@ -77,7 +87,7 @@ class RouterController:
     return config_new
 
   # protocols blockの作成
-  def create_protocols_block(self, routeList, sourceRouteList):
+  def create_policy_and_protocol_block(self, routeList, sourceRouteList):
     policy = """policy {
     route PBR {
         interface eth0
@@ -129,4 +139,4 @@ class RouterController:
     protocols += """    }
 }"""
 
-    return policy + protocols
+    return policy, protocols

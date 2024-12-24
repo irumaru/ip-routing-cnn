@@ -1,0 +1,127 @@
+vyos@vyos:/config$ show configuration 
+interfaces {
+    ethernet eth0 {
+        address 192.168.10.14/24
+        hw-id bc:24:11:4d:80:62
+        offload {
+            gro
+            gso
+            sg
+            tso
+        }
+    }
+    ethernet eth1 {
+        address 192.168.8.4/24
+        hw-id bc:24:11:85:d8:cc
+        offload {
+            gro
+            gso
+            sg
+            tso
+        }
+    }
+    loopback lo {
+    }
+}
+nat {
+    source {
+        rule 100 {
+            outbound-interface {
+                name eth0
+            }
+            source {
+                address 192.168.0.0/16
+            }
+            translation {
+                address masquerade
+            }
+        }
+    }
+}
+policy {
+    route PBR {
+        interface eth0
+        rule 20 {
+            set {
+                table 10
+            }
+            source {
+                address 35.213.99.126/32
+            }
+        }
+    }
+}
+protocols {
+    static {
+        route 0.0.0.0/0 {
+            next-hop 192.168.10.1 {
+            }
+        }
+        route 192.168.9.0/24 {
+            next-hop 192.168.8.2 {
+            }
+        }
+        route 192.168.11.0/24 {
+            next-hop 192.168.8.2 {
+            }
+        }
+        table 10 {
+            route 192.168.11.102/32 {
+                next-hop 192.168.8.3 {
+                }
+            }
+        }
+    }
+}
+service {
+    ntp {
+        allow-client {
+            address 127.0.0.0/8
+            address 169.254.0.0/16
+            address 10.0.0.0/8
+            address 172.16.0.0/12
+            address 192.168.0.0/16
+            address ::1/128
+            address fe80::/10
+            address fc00::/7
+        }
+        server time1.vyos.net {
+        }
+        server time2.vyos.net {
+        }
+        server time3.vyos.net {
+        }
+    }
+    ssh {
+        port 22
+    }
+}
+system {
+    config-management {
+        commit-revisions 100
+    }
+    console {
+        device ttyS0 {
+            speed 115200
+        }
+    }
+    host-name vyos
+    login {
+        user vyos {
+            authentication {
+                encrypted-password ****************
+                plaintext-password ****************
+            }
+        }
+    }
+    syslog {
+        global {
+            facility all {
+                level info
+            }
+            facility local7 {
+                level debug
+            }
+        }
+    }
+}
