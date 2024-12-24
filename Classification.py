@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 import traceback
+import os
 
 import RawData
 import ProcessCtrl
@@ -30,7 +31,7 @@ def Start():
     while True:
       # 時刻ロガー
       timeLogger = TimeLogger.TimeLogger()
-      timeLogger.Logger("データ読み込み開始")
+      timeLogger.Logger("パケットサイズ時系列データ読み込み開始")
       
       # Dataframeへ変換
       rt = RawData.Table.getInstance().getRawTable()
@@ -50,7 +51,7 @@ def Start():
       sourceRouteTable = {}
       tt = RichTable.TrafficMini()
       for idx, row in targetList.iterrows():
-        timeLogger.Logger("フロー情報処理開始")
+        timeLogger.Logger("通信の種類ごとに分類開始")
         
         #df1 = df[(df["SrcIP"] == row["SrcIP"]) & (df["DstIP"] == row["DstIP"]) & (df["SrcPort"] == row["SrcPort"]) & (df["DstPort"] == row["DstPort"])]
         df1 = df[(df["SrcIP"] == row["SrcIP"]) & (df["DstIP"] == row["DstIP"])]
@@ -67,23 +68,25 @@ def Start():
           continue
 
         # 画像化
+        # tmpfsを使用して高速化
+        imgDir = "/dev/shm/ip-routing-cnn"
+        os.makedirs(imgDir, exist_ok=True)
+
+        imgPath = f"{imgDir}/tmp.png"
+
         timeLogger.Logger("フロー画像生成開始")
-        FlowPic.Generate(df1, "output/tmp.png")
+        FlowPic.Generate(df1, imgPath)
 
         # 評価
         timeLogger.Logger("CNN評価開始")
-        predict = Eval.Eval("output/tmp.png")
+        predict = Eval.Eval(imgPath)
         timeLogger.Logger("CNN評価終了")
-
-        # 表示
-        tt.add(idx, row["SrcIP"], row["DstIP"], length, duration, predict["predicted"], predict["probabilities"])
 
         # 低精度
         if predict["probabilities"] < 0.6:
           timeLogger.Clear()
           continue
         
-        timeLogger.Logger("ルーティング制御開始")
         # ルールで分類
         if RouteRule.getRouteByLabel(predict["predicted"]):
           # ルーティング
@@ -94,19 +97,24 @@ def Start():
           src = f"{row["SrcIP"]}/32"
           dst = f"{row["DstIP"]}/32"
           sourceRouteTable.setdefault(src, []).append(dst)
-        timeLogger.Logger("ルーティング制御終了")
-
-        # 時刻ロガーの出力
-        timeLogger.SetStreamId(idx)
-        timeLogger.Write()
+          # 表示
+          tt.add(idx, row["SrcIP"], row["DstIP"], length, duration, predict["predicted"], predict["probabilities"], True)
+          # 時刻ロガー
+          timeLogger.SetStreamId(idx)
+          timeLogger.Write()
+        else:
+          # 表示
+          tt.add(idx, row["SrcIP"], row["DstIP"], length, duration, predict["predicted"], predict["probabilities"], False)
 
         # ファイル出力
-        #df1.to_csv(f"output/{idx}.csv")
+        df1.to_csv(f"output/{idx}.csv")
 
       # ルーティングテーブルの更新
       print(RouteTable)
+      #timeLogger.Logger("ルーティング制御開始")
       router1.UpdateRoute(RouteTable, {})
       router2.UpdateRoute({}, sourceRouteTable)
+      #timeLogger.Logger("ルーティング制御終了")
 
       tt.print()
 
@@ -117,8 +125,6 @@ def Start():
         return
   except:
     traceback.print_exc()
-
-
 
 def TrainStart():
   try:

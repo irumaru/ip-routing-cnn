@@ -33,9 +33,10 @@ class TrafficMini:
     self.table.add_column("Duration")
     self.table.add_column("Predicted")
     self.table.add_column("Probabilities")
+    self.table.add_column("Routing")
 
-  def add(self, streamId, srcIP, dstIP, length, duration, predicted, probabilities):
-    self.table.add_row(str(streamId), str(srcIP), str(dstIP), str(DataSize.Print(length)), str(format(duration, ".2f")), str(predicted), str(format(probabilities, ".2f")))
+  def add(self, streamId, srcIP, dstIP, length, duration, predicted, probabilities, Routing):
+    self.table.add_row(str(streamId), str(srcIP), str(dstIP), str(DataSize.Print(length)), str(format(duration, ".3f")), str(predicted), str(format(probabilities, ".3f")), str(Routing))
 
   def print(self):
     console = Console()
